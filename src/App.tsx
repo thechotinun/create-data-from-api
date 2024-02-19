@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from 'react'
 import './App.css'
 import axios from 'axios';
-import { map, groupBy, countBy, minBy, maxBy, mapValues, keyBy } from 'lodash';
+import { map} from 'lodash';
 import { JsonViewer } from '@textea/json-viewer';
 import { UserData, UserDataResponse, DepartmentSummary, departmentAgerang } from './interface/DepartmentSummary';
-import { calculateAgeRange } from './utils/calculateAgeRange'
+import { calculateAgeRange } from './utils/calculateAgeRange';
 
 function App() {
   const initialSummary: DepartmentSummary[] = [];
@@ -41,32 +41,7 @@ function App() {
     return Object.keys(summaryData).map(key => ({ [key]: summaryData[key] }));
   },[]);
 
-  const tfdata = async (users: UserData[]) => {
-    const result = map(groupBy(users, 'company.department'), (users, department) => {
-      const genderSummary = countBy(users, 'gender');
-      const maleCount = genderSummary['male'] || 0;
-      const femaleCount = genderSummary['female'] || 0;
   
-      const ages = users.map(user => user.age).filter(age => typeof age === 'number');
-      const ageRange = ages.length > 0 ? `${minBy(ages)}-${maxBy(ages)}` : 'N/A';
-  
-      const hairColorSummary = countBy(users, 'hair.color');
-  
-      const addressUser = mapValues(keyBy(users, user => `${user.firstName}${user.lastName}`), 'address.postalCode');
-  
-      return {
-          [department]: {
-              male: maleCount,
-              female: femaleCount,
-              ageRange: ageRange,
-              hair: hairColorSummary,
-              addressUser: addressUser
-          }
-      };
-  });
-  
-  console.log(result);
-  }
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -76,7 +51,6 @@ function App() {
         
         const resultData = await transformData(data.users);
         setSummary(resultData);
-        await tfdata(data.users);
       } catch (error) {
         console.error('Error fetching users:', error);
       }
